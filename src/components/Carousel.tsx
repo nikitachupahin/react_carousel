@@ -24,25 +24,36 @@ export const Carousel: React.FC<CarouselProps> = ({
 
   const handleNext = () => {
     setPosition(prev => {
+      const nextPos = prev + step;
+
       if (infinite) {
-        return (prev + step) % images.length;
+        return nextPos % images.length;
       }
 
-      return Math.min(prev + step, maxPosition);
+      return Math.min(nextPos, maxPosition);
     });
   };
 
   const handlePrev = () => {
     setPosition(prev => {
+      const nextPos = prev - step;
+
       if (infinite) {
-        return (prev - step + images.length) % images.length;
+        return (nextPos + images.length) % images.length;
       }
 
-      return Math.max(prev - step, 0);
+      return Math.max(nextPos, 0);
     });
   };
 
-  const listWidth = images.length * itemWidth;
+  const visibleImages = infinite
+    ? [...images, ...images.slice(0, frameSize)]
+    : images;
+
+  const listWidth = visibleImages.length * itemWidth;
+  const currentTransform = infinite
+    ? `translateX(-${position * itemWidth}px)`
+    : `translateX(-${position * itemWidth}px)`;
 
   return (
     <div className="Carousel">
@@ -58,11 +69,11 @@ export const Carousel: React.FC<CarouselProps> = ({
           style={{
             width: `${listWidth}px`,
             display: 'flex',
-            transform: `translateX(-${position * itemWidth}px)`,
+            transform: currentTransform,
             transition: `transform ${animationDuration}ms`,
           }}
         >
-          {images.map((img, index) => (
+          {visibleImages.map((img, index) => (
             <li key={index} style={{ flexShrink: 0 }}>
               <img
                 src={img}
@@ -75,10 +86,19 @@ export const Carousel: React.FC<CarouselProps> = ({
         </ul>
       </div>
 
-      <button type="button" onClick={handlePrev}>
+      <button
+        type="button"
+        onClick={handlePrev}
+        disabled={!infinite && position === 0}
+      >
         Prev
       </button>
-      <button type="button" data-cy="next" onClick={handleNext}>
+      <button
+        type="button"
+        data-cy="next"
+        onClick={handleNext}
+        disabled={!infinite && position >= maxPosition}
+      >
         Next
       </button>
     </div>

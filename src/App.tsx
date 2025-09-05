@@ -21,6 +21,8 @@ export const App: React.FC = () => {
     './img/10.png',
   ];
 
+  document.title = 'Carousel';
+
   return (
     <div className="App">
       <h1 data-cy="title">Carousel with {images.length} images</h1>
